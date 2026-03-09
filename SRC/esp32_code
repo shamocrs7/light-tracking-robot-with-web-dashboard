@@ -1,0 +1,109 @@
+#include <WiFi.h>
+#include <WebServer.h>
+#include <Wire.h>
+
+const char* ssid = "*********";
+const char* password = "********";
+#define SLAVE_ADDRESS 0x08 
+#define I2C_SDA 21
+#define I2C_SCL 22
+
+WebServer server(80);
+
+float ldrF, ldrB, ldrL, ldrR;
+
+void readI2C() {
+  Wire.requestFrom(SLAVE_ADDRESS, 16);
+  if (Wire.available() == 16) {
+    float temp[4];
+    Wire.readBytes((byte*)temp, 16);
+    ldrF = temp[0];
+    ldrB = temp[1];
+    ldrL = temp[2];
+    ldrR = temp[3];
+  }
+}
+
+void handleData() {
+  readI2C();
+  String json = "{";
+  json += "\"F\":" + String(ldrF, 2) + ",";
+  json += "\"B\":" + String(ldrB, 2) + ",";
+  json += "\"L\":" + String(ldrL, 2) + ",";
+  json += "\"R\":" + String(ldrR, 2);
+  json += "}";
+  server.send(200, "application/json", json);
+}
+
+void handleRoot() {
+  String html = R"rawliteral(
+<!DOCTYPE html><html><head>
+  <title>Robot Voltage Telemetry</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: sans-serif; background: #0d1117; color: white; text-align: center; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; padding: 20px; }
+    .chart-container { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 15px; }
+    h2 { color: #58a6ff; }
+  </style>
+</head><body>
+  <h2>LDR Voltage vs Time</h2>
+  <div class="grid">
+    <div class="chart-container"><canvas id="chartF"></canvas></div>
+    <div class="chart-container"><canvas id="chartB"></canvas></div>
+    <div class="chart-container"><canvas id="chartL"></canvas></div>
+    <div class="chart-container"><canvas id="chartR"></canvas></div>
+  </div>
+  <script>
+    const createChart = (id, label, color) => {
+      return new Chart(document.getElementById(id), {
+        type: 'line',
+        data: { labels: [], datasets: [{ label: label, data: [], borderColor: color, tension: 0.3, fill: false }] },
+        options: {
+          scales: { y: { min: 0, max: 5, ticks: { color: 'white' } }, x: { display: false } },
+          plugins: { legend: { labels: { color: 'white' } } }
+        }
+      });
+    };
+
+    const charts = {
+      F: createChart('chartF', 'Front Voltage', '#ff5555'),
+      B: createChart('chartB', 'Back Voltage', '#55ff55'),
+      L: createChart('chartL', 'Left Voltage', '#5555ff'),
+      R: createChart('chartR', 'Right Voltage', '#ffff55')
+    };
+
+    function updateData() {
+      fetch('/data').then(res => res.json()).then(data => {
+        const now = new Date().toLocaleTimeString();
+        ['F', 'B', 'L', 'R'].forEach(key => {
+          const chart = charts[key];
+          if (chart.data.labels.length > 20) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+          }
+          chart.data.labels.push(now);
+          chart.data.datasets[0].data.push(data[key]);
+          chart.update('none'); // Update without animation for performance
+        });
+      });
+    }
+    setInterval(updateData, 500);
+  </script>
+</body></html>)rawliteral";
+  server.send(200, "text/html", html);
+}
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin(I2C_SDA, I2C_SCL);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) { delay(500); Serial.print("."); }
+  server.on("/", handleRoot);
+  server.on("/data", handleData);
+  server.begin();
+}
+
+void loop() {
+  server.handleClient();
+}
