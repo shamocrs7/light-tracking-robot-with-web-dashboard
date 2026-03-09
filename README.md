@@ -108,24 +108,6 @@ Data refresh rate:
 
 500 ms
 
-
----
-
-## Folder Structure
-
-
-├── esp32_server/
-│ └── telemetry_server.ino
-│
-├── arduino_robot/
-│ └── robot_controller.ino
-│
-├── images/
-│ └── dashboard.png
-│
-└── README.md
-
-
 ---
 
 ## How to Run
@@ -149,11 +131,9 @@ GND → GND
 ### 4. Connect WiFi
 
 Edit in ESP32 code:
-
-```cpp
 const char* ssid = "YOUR_WIFI";
 const char* password = "YOUR_PASSWORD";
-5. Open Dashboard
+### 5. Open Dashboard
 
 After ESP32 connects to WiFi, open:
 
@@ -164,9 +144,8 @@ in your browser.
 Example Output
 
 The dashboard shows real-time voltage curves for all LDR sensors while the robot moves toward light sources.
-
-Possible Improvements
-
+--
+##Possible Improvements
 Add PID control for smoother motion
 
 Add camera-based light detection
