@@ -142,16 +142,15 @@ http://ESP32_IP_ADDRESS
 in your browser.
 
 Example Output
-
-The dashboard shows real-time voltage curves for all LDR sensors while the robot moves toward light sources.
---
-##Possible Improvements
-Add PID control for smoother motion
-
-Add camera-based light detection
-
-Replace LDR with photodiodes
-
-Add ROS2 integration
-
-Log telemetry to CSV or cloud
+   The dashboard shows real-time voltage curves for all LDR sensors while the robot moves toward light sources.
+---
+## Possible Improvements
+   Add PID control for smoother motion
+   
+   Add camera-based light detection
+   
+   Replace LDR with photodiodes
+   
+   Add ROS2 integration
+   
+   Log telemetry to CSV or cloud
