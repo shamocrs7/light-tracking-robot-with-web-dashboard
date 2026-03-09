@@ -1,6 +1,3 @@
-# light-tracking-robot-with-web-dashboard
-A light-tracking mobile robot using four LDR sensors and DC motors, featuring real-time voltage telemetry visualized through an ESP32 web dashboard using Chart.js.
-
 # ESP32 LDR Light Tracking Robot
 
 A light-seeking mobile robot that autonomously moves toward the brightest light source using four LDR sensors.  
