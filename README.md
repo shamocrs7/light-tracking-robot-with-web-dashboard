@@ -140,9 +140,9 @@ After ESP32 connects to WiFi, open:
 http://ESP32_IP_ADDRESS
 
 in your browser.
-
 Example Output
-   The dashboard shows real-time voltage curves for all LDR sensors while the robot moves toward light sources.
+The dashboard shows real-time voltage curves for all LDR sensors while the robot moves toward light sources.
+
 ---
 ## Possible Improvements
    Add PID control for smoother motion
